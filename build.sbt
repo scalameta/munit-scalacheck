@@ -118,13 +118,13 @@ val sharedSettings = List(
 
 lazy val munitScalacheck = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .in(file("munit-scalacheck"))
-  .dependsOn(munit)
   .settings(
     moduleName := "munit-scalacheck",
     sharedSettings,
-    libraryDependencies += {
-      "org.scalacheck" %%% "scalacheck" % "1.18.0"
-    }
+    libraryDependencies ++= Seq(
+      "org.scalacheck" %%% "scalacheck" % "1.17.0",
+      "org.scalameta" %%% "munit" % "1.0.0-M11"
+    )
   )
   .jvmSettings(
     sharedJVMSettings
@@ -142,8 +142,15 @@ lazy val munitScalacheckNative = munitScalacheck.native
 
 lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .dependsOn(munitScalacheck)
+  .enablePlugins(BuildInfoPlugin)
   .settings(
     sharedSettings,
+    buildInfoPackage := "munit",
+    buildInfoKeys := Seq[BuildInfoKey](
+      "sourceDirectory" ->
+        ((ThisBuild / baseDirectory).value / "tests" / "shared" / "src" / "main").getAbsolutePath.toString,
+      scalaVersion
+    ),
     Test / unmanagedSourceDirectories ++=
       crossBuildingDirectories("tests", "test").value,
     publish / skip := true
