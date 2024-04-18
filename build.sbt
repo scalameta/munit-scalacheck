@@ -8,9 +8,10 @@ def scala213 = "2.13.13"
 
 def scala212 = "2.12.19"
 
-def scala3 = "3.1.2"
+def scala3 = "3.1.3"
+
 def junitVersion = "4.13.2"
-def gcp = "com.google.cloud" % "google-cloud-storage" % "2.32.1"
+
 inThisBuild(
   List(
     version ~= { old =>
@@ -68,76 +69,6 @@ lazy val skipIdeaSettings =
 lazy val mimaEnable: List[Def.Setting[_]] = List(
   mimaBinaryIssueFilters ++= List(
     ProblemFilters.exclude[DirectMissingMethodProblem](
-      "munit.MUnitRunner.descriptions"
-    ),
-    ProblemFilters.exclude[DirectMissingMethodProblem](
-      "munit.MUnitRunner.testNames"
-    ),
-    ProblemFilters.exclude[DirectMissingMethodProblem](
-      "munit.MUnitRunner.munitTests"
-    ),
-    ProblemFilters.exclude[DirectMissingMethodProblem](
-      "munit.ValueTransforms.munitTimeout"
-    ),
-    ProblemFilters.exclude[MissingTypesProblem]("munit.FailException"),
-    ProblemFilters.exclude[MissingTypesProblem]("munit.FailSuiteException"),
-    ProblemFilters.exclude[MissingTypesProblem](
-      "munit.TestValues$FlakyFailure"
-    ),
-    ProblemFilters.exclude[DirectMissingMethodProblem](
-      "munit.internal.junitinterface.JUnitComputer.this"
-    ),
-    // Known breaking changes for MUnit v1
-    ProblemFilters.exclude[DirectMissingMethodProblem](
-      "munit.Assertions.assertNotEquals"
-    ),
-    ProblemFilters.exclude[DirectMissingMethodProblem](
-      "munit.Assertions.assertEquals"
-    ),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem](
-      "munit.Assertions.assertNotEquals"
-    ),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem](
-      "munit.Assertions.assertEquals"
-    ),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem](
-      "munit.FunSuite.assertNotEquals"
-    ),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem](
-      "munit.FunSuite.assertEquals"
-    ),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem](
-      "munit.FunSuite.munitTestTransform"
-    ),
-    ProblemFilters.exclude[MissingClassProblem]("munit.GenericAfterEach"),
-    ProblemFilters.exclude[MissingClassProblem]("munit.GenericBeforeEach"),
-    ProblemFilters.exclude[MissingClassProblem]("munit.GenericTest"),
-    ProblemFilters.exclude[DirectMissingMethodProblem](
-      "munit.MUnitRunner.createTestDescription"
-    ),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem](
-      "munit.Suite.beforeEach"
-    ),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem](
-      "munit.Suite.afterEach"
-    ),
-    ProblemFilters.exclude[MissingClassProblem]("munit.Suite$Fixture"),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem](
-      "munit.TestTransforms#TestTransform.apply"
-    ),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem](
-      "munit.FunFixtures#FunFixture.this"
-    ),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem](
-      "munit.SuiteTransforms#SuiteTransform.this"
-    ),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem](
-      "munit.TestTransforms#TestTransform.this"
-    ),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem](
-      "munit.ValueTransforms#ValueTransform.this"
-    ),
-    ProblemFilters.exclude[DirectMissingMethodProblem](
       "munit.ScalaCheckSuite.unitToProp"
     )
   ),
@@ -169,13 +100,6 @@ val sharedNativeConfigure: Project => Project =
 val sharedSettings = List(
   scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 11)) =>
-        List(
-          "-Yrangepos",
-          "-Xexperimental",
-          "-Ywarn-unused-import",
-          "-target:jvm-1.8"
-        )
       case Some((major, _)) if major != 2 =>
         List(
           "-language:implicitConversions"
@@ -192,93 +116,15 @@ val sharedSettings = List(
   }
 )
 
-lazy val junit = project
-  .in(file("junit-interface"))
-  .settings(
-    mimaEnable,
-    moduleName := "junit-interface",
-    description := "A Java implementation of sbt's test interface for JUnit 4",
-    autoScalaLibrary := false,
-    crossPaths := false,
-    sbtPlugin := false,
-    crossScalaVersions := List(allScalaVersions.head),
-    libraryDependencies ++= List(
-      "junit" % "junit" % junitVersion,
-      "org.scala-sbt" % "test-interface" % "1.0"
-    ),
-    Compile / javacOptions ++= List("-target", "1.8", "-source", "1.8"),
-    Compile / doc / javacOptions --= List("-target", "1.8")
-  )
-
-lazy val munit = crossProject(JSPlatform, JVMPlatform, NativePlatform)
-  .settings(
-    sharedSettings,
-    Compile / unmanagedSourceDirectories ++=
-      crossBuildingDirectories("munit", "main").value,
-    libraryDependencies ++= List(
-      "org.scala-lang" % "scala-reflect" % {
-        if (isScala3Setting.value) scala213
-        else scalaVersion.value
-      } % Provided
-    )
-  )
-  .nativeConfigure(sharedNativeConfigure)
-  .nativeSettings(
-    sharedNativeSettings,
-    libraryDependencies ++= List(
-      "org.scala-native" %%% "test-interface" % nativeVersion
-    )
-  )
-  .jsConfigure(sharedJSConfigure)
-  .jsSettings(
-    sharedJSSettings,
-    libraryDependencies ++= List(
-      ("org.scala-js" %% "scalajs-test-interface" % scalaJSVersion)
-        .cross(CrossVersion.for3Use2_13),
-      ("org.scala-js" %% "scalajs-junit-test-runtime" % scalaJSVersion)
-        .cross(CrossVersion.for3Use2_13)
-    )
-  )
-  .jvmSettings(
-    sharedJVMSettings,
-    libraryDependencies ++= List(
-      "junit" % "junit" % junitVersion
-    )
-  )
-  .jvmConfigure(_.dependsOn(junit))
-lazy val munitJVM = munit.jvm
-lazy val munitJS = munit.js
-lazy val munitNative = munit.native
-
-lazy val plugin = project
-  .in(file("munit-sbt"))
-  .enablePlugins(BuildInfoPlugin)
-  .settings(
-    sharedSettings,
-    moduleName := "sbt-munit",
-    sbtPlugin := true,
-    scalaVersion := scala212,
-    crossScalaVersions := List(scala212),
-    buildInfoPackage := "munit.sbtmunit",
-    buildInfoKeys := Seq[BuildInfoKey](
-      "munitVersion" -> version.value
-    ),
-    crossScalaVersions := List(scala212),
-    libraryDependencies ++= List(
-      gcp
-    )
-  )
-  .disablePlugins(MimaPlugin)
-
 lazy val munitScalacheck = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .in(file("munit-scalacheck"))
-  .dependsOn(munit)
   .settings(
     moduleName := "munit-scalacheck",
     sharedSettings,
-    libraryDependencies += {
-      "org.scalacheck" %%% "scalacheck" % "1.17.0"
-    }
+    libraryDependencies ++= Seq(
+      "org.scalacheck" %%% "scalacheck" % "1.17.0",
+      "org.scalameta" %%% "munit" % "1.0.0-M11"
+    )
   )
   .jvmSettings(
     sharedJVMSettings
@@ -295,7 +141,7 @@ lazy val munitScalacheckJS = munitScalacheck.js
 lazy val munitScalacheckNative = munitScalacheck.native
 
 lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
-  .dependsOn(munit, munitScalacheck)
+  .dependsOn(munitScalacheck)
   .enablePlugins(BuildInfoPlugin)
   .settings(
     sharedSettings,
@@ -332,30 +178,10 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     Test / testOptions += Tests.Argument(TestFrameworks.MUnit, "+b")
   )
   .disablePlugins(MimaPlugin)
+
 lazy val testsJVM = tests.jvm
 lazy val testsJS = tests.js
 lazy val testsNative = tests.native
-
-lazy val docs = project
-  .in(file("munit-docs"))
-  .dependsOn(munitJVM, munitScalacheckJVM)
-  .enablePlugins(MdocPlugin, DocusaurusPlugin)
-  .disablePlugins(MimaPlugin)
-  .settings(
-    sharedSettings,
-    publish / skip := true,
-    moduleName := "munit-docs",
-    crossScalaVersions := List(scala213, scala212),
-    test := {},
-    mdocOut :=
-      (ThisBuild / baseDirectory).value / "website" / "target" / "docs",
-    mdocExtraArguments := List("--no-link-hygiene"),
-    mdocVariables := Map(
-      "VERSION" -> version.value.replaceFirst("\\+.*", ""),
-      "STABLE_VERSION" -> "0.7.29"
-    ),
-    fork := false
-  )
 
 Global / excludeLintKeys ++= Set(
   mimaPreviousArtifacts

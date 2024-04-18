@@ -18,12 +18,7 @@ jobs:
           distribution: temurin
           java-version: "${{ matrix.java }}"
           cache: sbt
-      - run: sbt +testsJVM/test plugin/test
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS:
-            ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          GOOGLE_APPLICATION_CREDENTIALS_JSON:
-            ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+      - run: sbt +testsJVM/test
   js:
     runs-on: ubuntu-latest
     steps:
@@ -34,11 +29,6 @@ jobs:
           java-version: 8
           cache: sbt
       - run: sbt +testsJS/test
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS:
-            ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          GOOGLE_APPLICATION_CREDENTIALS_JSON:
-            ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
   jsdom:
     runs-on: ubuntu-latest
     steps:
@@ -50,11 +40,6 @@ jobs:
           cache: sbt
       - run: npm install
       - run: sbt +testsJS/test
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS:
-            ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          GOOGLE_APPLICATION_CREDENTIALS_JSON:
-            ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
   native:
     runs-on: ubuntu-latest
     steps:
@@ -65,11 +50,6 @@ jobs:
           java-version: 8
           cache: sbt
       - run: sbt +testsNative/test
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS:
-            ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          GOOGLE_APPLICATION_CREDENTIALS_JSON:
-            ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
   windows:
     runs-on: windows-latest
     steps:
@@ -81,11 +61,6 @@ jobs:
           cache: sbt
       - run: sbt +testsJVM/test
         shell: bash
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS:
-            ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          GOOGLE_APPLICATION_CREDENTIALS_JSON:
-            ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
   mima:
     runs-on: ubuntu-latest
     steps:
@@ -107,7 +82,7 @@ jobs:
           cache: sbt
       - run: ./bin/scalafmt --check
   docs:
-    name: Scalafix and Docs
+    name: Scalafix
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -117,9 +92,3 @@ jobs:
           java-version: 11
           cache: sbt
       - run: sbt scalafixCheckAll
-      - run: sbt docs/docusaurusCreateSite
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS:
-            ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          GOOGLE_APPLICATION_CREDENTIALS_JSON:
-            ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}

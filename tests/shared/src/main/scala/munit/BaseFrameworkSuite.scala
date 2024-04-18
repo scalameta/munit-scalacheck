@@ -1,17 +1,18 @@
 package munit
 
-import java.io.ByteArrayOutputStream
-import sbt.testing.TaskDef
-import sbt.testing.EventHandler
+import munit.internal.PlatformCompat
+import munit.internal.console.AnsiColors
 import sbt.testing.Event
+import sbt.testing.EventHandler
+import sbt.testing.Logger
+import sbt.testing.TaskDef
+
+import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
-import sbt.testing.Logger
-import scala.util.control.NonFatal
 import java.util.regex.Pattern
-import munit.internal.console.AnsiColors
-import munit.internal.PlatformCompat
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 abstract class BaseFrameworkSuite extends BaseSuite {
   val systemOut = System.out
@@ -83,8 +84,6 @@ abstract class BaseFrameworkSuite extends BaseSuite {
       }
       implicit val ec = munitExecutionContext
       val elapsedTimePattern = Pattern.compile(" \\d+\\.\\d+s ?")
-      TestingConsole.out = out
-      TestingConsole.err = out
       for {
         _ <- tasks.foldLeft(Future.successful(())) { case (base, task) =>
           base.flatMap(_ =>
