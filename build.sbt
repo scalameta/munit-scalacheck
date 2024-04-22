@@ -8,7 +8,7 @@ def scala213 = "2.13.13"
 
 def scala212 = "2.12.19"
 
-def scala3 = "3.1.3"
+def scala3 = "3.3.3"
 
 def junitVersion = "4.13.2"
 
@@ -122,8 +122,8 @@ lazy val munitScalacheck = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     moduleName := "munit-scalacheck",
     sharedSettings,
     libraryDependencies ++= Seq(
-      "org.scalacheck" %%% "scalacheck" % "1.17.0",
-      "org.scalameta" %%% "munit" % "1.0.0-M11"
+      "org.scalacheck" %%% "scalacheck" % "1.18.0",
+      "org.scalameta" %%% "munit" % "1.0.0-M12"
     )
   )
   .jvmSettings(
