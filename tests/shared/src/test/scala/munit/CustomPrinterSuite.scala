@@ -1,9 +1,10 @@
 package munit
 
-import org.scalacheck.Prop.forAll
+import munit.diff.Printer
 import munit.internal.console.Printers
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Prop
+import org.scalacheck.Prop.forAll
 
 class CustomPrinterSuite extends FunSuite with ScalaCheckSuite {
 
