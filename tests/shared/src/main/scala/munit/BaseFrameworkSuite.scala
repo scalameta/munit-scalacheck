@@ -1,7 +1,7 @@
 package munit
 
+import munit.diff.console.AnsiColors
 import munit.internal.PlatformCompat
-import munit.internal.console.AnsiColors
 import sbt.testing.Event
 import sbt.testing.EventHandler
 import sbt.testing.Logger
