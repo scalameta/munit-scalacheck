@@ -9,8 +9,8 @@
 <a href="https://twitter.com/scalameta">
 <img src="https://img.shields.io/twitter/follow/scalameta.svg?logo=twitter&style=flat-square&color=blue" />
 </a>
-<a href="https://index.scala-lang.org/scalameta/munit/munit">
-<img src="https://img.shields.io/maven-central/v/org.scalameta/munit_2.13?style=flat-square" />
+<a href="https://index.scala-lang.org/scalameta/munit-scalacheck">
+<img src="https://img.shields.io/maven-central/v/org.scalameta/munit-scalacheck_2.13?style=flat-square" />
 </a>
 
 Scala testing library with actionable errors and extensible APIs.
