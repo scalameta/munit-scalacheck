@@ -1,4 +1,4 @@
-# MUnit
+# MUnit ScalaCheck
 
 <a href="https://github.com/scalameta/munit-scalacheck/actions">
 <img src="https://img.shields.io/github/actions/workflow/status/scalameta/munit-scalacheck/ci.yml?branch=main&style=flat-square" />
@@ -13,8 +13,7 @@
 <img src="https://img.shields.io/maven-central/v/org.scalameta/munit-scalacheck_2.13?style=flat-square" />
 </a>
 
-Scala testing library with actionable errors and extensible APIs.
+MUnit ScalaCheck is an integration library that supports writing property-based tests using MUnit and ScalaCheck.
 
-## Documentation
-
-See the website: https://scalameta.org/munit/
+More information is available on the MUnit documentation site:
+https://scalameta.org/munit/docs/integrations/scalacheck.html
