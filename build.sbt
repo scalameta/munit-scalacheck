@@ -35,7 +35,9 @@ inThisBuild(
       )
     ),
     scalaVersion := scala213,
-    useSuperShell := false
+    useSuperShell := false,
+    // This is not nice, but we need to add the _native0.5 for this: https://github.com/sbt/sbt/issues/7140
+    libraryDependencySchemes += "org.scala-native" %% "test-interface_native0.5" % VersionScheme.Always
   )
 )
 
@@ -123,8 +125,8 @@ lazy val munitScalacheck = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     sharedSettings,
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % "1.18.0",
-      "org.scalameta" %%% "munit-diff" % "1.0.0",
-      "org.scalameta" %%% "munit" % "1.0.0"
+      "org.scalameta" %%% "munit-diff" % "1.0.1",
+      "org.scalameta" %%% "munit" % "1.0.1"
     )
   )
   .jvmSettings(
