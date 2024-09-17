@@ -51,7 +51,7 @@ object ScalaCheckFrameworkSuite
     extends FrameworkTest(
       classOf[ScalaCheckFrameworkSuite],
       """|==> success munit.ScalaCheckFrameworkSuite.boolean check (true)
-         |==> failure munit.ScalaCheckFrameworkSuite.boolean check (false) - /scala/munit/ScalaCheckFrameworkSuite.scala:18
+         |==> failure munit.ScalaCheckFrameworkSuite.boolean check (false) - tests/shared/src/main/scala/munit/ScalaCheckFrameworkSuite.scala:18
          |17:
          |18:  property("boolean check (false)") {
          |19:    forAll { (n: Int) => scala.math.sqrt(n * n) == n }
@@ -66,7 +66,7 @@ object ScalaCheckFrameworkSuite
          |> ARG_0_ORIGINAL: 2147483647
          |==> success munit.ScalaCheckFrameworkSuite.tagged
          |==> success munit.ScalaCheckFrameworkSuite.assertions (true)
-         |==> failure munit.ScalaCheckFrameworkSuite.assertions (false) - /scala/munit/ScalaCheckFrameworkSuite.scala:36
+         |==> failure munit.ScalaCheckFrameworkSuite.assertions (false) - tests/shared/src/main/scala/munit/ScalaCheckFrameworkSuite.scala:36
          |35:      assertEquals(n * 1, n)
          |36:      assertEquals(n * n, n)
          |37:      assertEquals(n + 0, n)
