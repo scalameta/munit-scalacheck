@@ -35,9 +35,7 @@ inThisBuild(
       )
     ),
     scalaVersion := scala213,
-    useSuperShell := false,
-    // This is not nice, but we need to add the _native0.5 for this: https://github.com/sbt/sbt/issues/7140
-    libraryDependencySchemes += "org.scala-native" %% "test-interface_native0.5" % VersionScheme.Always
+    useSuperShell := false
   )
 )
 
