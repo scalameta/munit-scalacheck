@@ -18,6 +18,7 @@ jobs:
           distribution: temurin
           java-version: "${{ matrix.java }}"
           cache: sbt
+      - uses: sbt/setup-sbt@v1
       - run: sbt +testsJVM/test
   js:
     runs-on: ubuntu-latest
@@ -28,6 +29,7 @@ jobs:
           distribution: temurin
           java-version: 8
           cache: sbt
+      - uses: sbt/setup-sbt@v1
       - run: sbt +testsJS/test
   jsdom:
     runs-on: ubuntu-latest
@@ -38,6 +40,7 @@ jobs:
           distribution: temurin
           java-version: 8
           cache: sbt
+      - uses: sbt/setup-sbt@v1
       - run: npm install
       - run: sbt +testsJS/test
   native:
@@ -49,6 +52,7 @@ jobs:
           distribution: temurin
           java-version: 8
           cache: sbt
+      - uses: sbt/setup-sbt@v1
       - run: sbt +testsNative/test
   windows:
     runs-on: windows-latest
@@ -59,6 +63,7 @@ jobs:
           distribution: temurin
           java-version: 8
           cache: sbt
+      - uses: sbt/setup-sbt@v1
       - run: sbt +testsJVM/test
         shell: bash
   mima:
@@ -70,6 +75,7 @@ jobs:
           distribution: temurin
           java-version: 8
           cache: sbt
+      - uses: sbt/setup-sbt@v1
       - run: sbt mimaReportBinaryIssues
   scalafmt:
     runs-on: ubuntu-latest
@@ -91,4 +97,5 @@ jobs:
           distribution: temurin
           java-version: 11
           cache: sbt
+      - uses: sbt/setup-sbt@v1
       - run: sbt scalafixCheckAll
