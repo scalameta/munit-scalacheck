@@ -30,6 +30,7 @@ abstract class BaseFrameworkSuite extends BaseSuite {
   }
 
   def check(t: FrameworkTest): Unit = {
+    implicit val loc = t.location
     test(t.cls.getSimpleName().withTags(t.tags)) {
       val baos = new ByteArrayOutputStream()
       val out = new PrintStream(baos)
@@ -109,8 +110,8 @@ abstract class BaseFrameworkSuite extends BaseSuite {
           obtained,
           t.expected,
           stdout
-        )(t.location)
+        )
       }
-    }(t.location)
+    }
   }
 }
