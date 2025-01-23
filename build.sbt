@@ -12,6 +12,8 @@ def scala3 = "3.3.4"
 
 def junitVersion = "4.13.2"
 
+def munitVersion = "1.1.0"
+
 inThisBuild(
   List(
     version ~= { old =>
@@ -35,6 +37,9 @@ inThisBuild(
       )
     ),
     scalaVersion := scala213,
+    // TODO: remove when munit/scalacheck align on `test-interface` package
+    // version; it comes from `org.scala-native:sbt-scala-native` plugin
+    evictionErrorLevel := sbt.util.Level.Warn,
     useSuperShell := false
   )
 )
@@ -123,8 +128,8 @@ lazy val munitScalacheck = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     sharedSettings,
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % "1.18.1",
-      "org.scalameta" %%% "munit-diff" % "1.0.2",
-      "org.scalameta" %%% "munit" % "1.0.2"
+      "org.scalameta" %%% "munit-diff" % munitVersion,
+      "org.scalameta" %%% "munit" % munitVersion
     )
   )
   .jvmSettings(
