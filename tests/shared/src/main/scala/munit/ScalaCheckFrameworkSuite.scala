@@ -73,9 +73,9 @@ object ScalaCheckFrameworkSuite
          |values are not the same
          |=> Obtained
          |1
-         |=> Diff (- obtained, + expected)
-         |-1
-         |+-1
+         |=> Diff (- expected, + obtained)
+         |--1
+         |+1
          |
          |Failing seed: CTH6hXj8ViScMmsO78-k4_RytXHPK_wSJYNH2h4dCpB=
          |You can reproduce this failure by adding the following override to your suite:
