@@ -22,6 +22,20 @@ trait ScalaCheckSuite extends FunSuite {
     test(options)(body)
   }
 
+  // Allow `property("name") = ...` syntax
+  sealed class PropertySpecifier {
+    def update(name: String, body: => Prop)(implicit loc: Location): Unit = {
+      property(new TestOptions(name, Set.empty, loc))(body)
+    }
+
+    def update(options: TestOptions, body: => Prop)(implicit
+        loc: Location
+    ): Unit = {
+      test(options)(body)
+    }
+  }
+  lazy val property = new PropertySpecifier()
+
   // Allow property bodies of type Unit
   // This is done to support using MUnit assertions in property bodies
   // instead of returning a Boolean.
