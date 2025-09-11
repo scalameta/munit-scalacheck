@@ -1,7 +1,7 @@
 import com.typesafe.tools.mima.core._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
-import sbtcrossproject.CrossPlugin.autoImport.CrossType
 import scala.collection.mutable
+
 def previousVersion = "0.7.0"
 
 def scala213 = "2.13.16"
@@ -12,7 +12,7 @@ def scala3 = "3.3.6"
 
 def junitVersion = "4.13.2"
 
-def munitVersion = "1.1.1"
+def munitVersion = "1.1.2"
 
 inThisBuild(
   List(
