@@ -7,7 +7,6 @@ import org.scalacheck.rng.Seed
 import scala.util.Success
 import scala.util.Failure
 import scala.util.Try
-import munit.internal.FutureCompat._
 
 trait ScalaCheckSuite extends FunSuite {
   def property(
@@ -55,7 +54,7 @@ trait ScalaCheckSuite extends FunSuite {
       "ScalaCheck Prop",
       t => {
         t.withBodyMap(
-          _.transformCompat {
+          _.transform {
             case Success(prop: Prop) => propToTry(prop, t)
             case r                   => r
           }(munitExecutionContext)
