@@ -16,12 +16,19 @@ def munitVersion = "1.2.1"
 
 inThisBuild(
   List(
-    version ~= { old =>
-      if ("true" == System.getProperty("CI") && old.contains("+0-")) {
-        old.replaceAll("\\+0-.*", "")
-      } else {
-        old
+    // version is set dynamically by sbt-dynver, but let's adjust it
+    version := {
+      val curVersion = version.value
+      def dynVer(out: sbtdynver.GitDescribeOutput): String = {
+        def tagVersion = out.ref.dropPrefix
+        if (out.isCleanAfterTag) tagVersion
+        else if (System.getProperty("CI") == null)
+          s"$tagVersion-next-SNAPSHOT" // modified for local builds
+        else if (out.commitSuffix.distance == 0) tagVersion
+        else if (sys.props.contains("backport.release")) tagVersion
+        else curVersion
       }
+      dynverGitDescribeOutput.value.mkVersion(dynVer, curVersion)
     },
     organization := "org.scalameta",
     homepage := Some(url("https://github.com/scalameta/munit")),
