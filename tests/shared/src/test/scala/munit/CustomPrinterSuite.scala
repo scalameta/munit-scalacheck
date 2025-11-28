@@ -119,7 +119,7 @@ class CustomPrinterSuite extends FunSuite with ScalaCheckSuite {
 
       val expectedbBarList = foobar.bar.l match {
         case Nil => "Nil"
-        case l =>
+        case l   =>
           l.map(i => s"NotNaN($i)").mkString("List(", ",", ")")
       }
 
