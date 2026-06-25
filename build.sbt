@@ -8,7 +8,7 @@ def scala213 = "2.13.18"
 
 def scala212 = "2.12.21"
 
-def scala3 = "3.3.8"
+def scala3 = "3.8.4"
 
 def junitVersion = "4.13.2"
 
