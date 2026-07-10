@@ -12,7 +12,7 @@ def scala3 = "3.3.8"
 
 def junitVersion = "4.13.2"
 
-def munitVersion = "1.3.3"
+def munitVersion = "1.3.4"
 
 inThisBuild(
   List(
