@@ -128,6 +128,7 @@ val sharedSettings = List(
 )
 
 lazy val munitScalacheck = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+  .withoutSuffixFor(JVMPlatform)
   .in(file("munit-scalacheck"))
   .settings(
     moduleName := "munit-scalacheck",
@@ -153,6 +154,7 @@ lazy val munitScalacheckJS = munitScalacheck.js
 lazy val munitScalacheckNative = munitScalacheck.native
 
 lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+  .withoutSuffixFor(JVMPlatform)
   .dependsOn(munitScalacheck)
   .enablePlugins(BuildInfoPlugin)
   .settings(

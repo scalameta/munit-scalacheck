@@ -19,7 +19,7 @@ jobs:
           java-version: "${{ matrix.java }}"
           cache: sbt
       - uses: sbt/setup-sbt@v1
-      - run: sbt +testsJVM/test
+      - run: sbt +tests/test
   js:
     runs-on: ubuntu-latest
     steps:
@@ -64,7 +64,7 @@ jobs:
           java-version: 8
           cache: sbt
       - uses: sbt/setup-sbt@v1
-      - run: sbt +testsJVM/test
+      - run: sbt +tests/test
         shell: bash
   mima:
     runs-on: ubuntu-latest
