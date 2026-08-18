@@ -53,14 +53,16 @@ LocalRootProject / publish / skip := true
 LocalRootProject / mimaPreviousArtifacts := Set.empty
 LocalRootProject / crossScalaVersions := List()
 
-addCommandAlias(
-  "scalafixAll",
-  s"; ++$scala212 ; scalafixEnable ; all scalafix test:scalafix"
-)
-addCommandAlias(
-  "scalafixCheckAll",
-  s"; ++$scala212 ;  scalafixEnable ; scalafix --check ; test:scalafix --check"
-)
+// scalafix runs on one Scala version, and Native opts out of the plugin
+def scalafixOn(arg: String) =
+  Seq(s"++$scala212", "scalafixEnable", s"scalafix $arg", s"test:scalafix $arg")
+    .mkString("; ", "; ", "")
+
+addCommandAlias("scalafixAll", scalafixOn(""))
+addCommandAlias("scalafixCheckAll", scalafixOn("--check"))
+addCommandAlias("testJVM", "+tests/test")
+addCommandAlias("testJS", "+testsJS/test")
+addCommandAlias("testNative", "+testsNative/test")
 
 val scala2Versions = List(scala213, scala212)
 
@@ -115,13 +117,15 @@ val sharedSettings = Def.settings(
   }
 )
 
+val munitScalacheckName = "munit-scalacheck"
+
 lazy val munitScalacheck = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform)
-  .in(file("munit-scalacheck"))
+  .in(file(munitScalacheckName))
   .settings(
-    moduleName := "munit-scalacheck",
+    moduleName := munitScalacheckName,
     sharedSettings,
-    unmanagedMainSources("munit-scalacheck", "shared"),
+    unmanagedMainSources(munitScalacheckName, "shared"),
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % "1.19.0",
       "org.scalameta" %%% "munit-diff" % munitVersion,
@@ -131,10 +135,6 @@ lazy val munitScalacheck = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .jvmSettings(mimaEnable)
   .nativeConfigure(onNative)
   .jsConfigure(onJS)
-
-lazy val munitScalacheckJVM = munitScalacheck.jvm
-lazy val munitScalacheckJS = munitScalacheck.js
-lazy val munitScalacheckNative = munitScalacheck.native
 
 def testsJVMSettings = Def.settings(
   fork := true,
@@ -171,10 +171,6 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .jsSettings(jsEnv := jsEnvForJob(sLog.value))
   .jvmSettings(testsJVMSettings)
   .disablePlugins(MimaPlugin)
-
-lazy val testsJVM = tests.jvm
-lazy val testsJS = tests.js
-lazy val testsNative = tests.native
 
 Global / excludeLintKeys ++= Set(
   mimaPreviousArtifacts
