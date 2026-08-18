@@ -2,8 +2,6 @@ import com.typesafe.tools.mima.core._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 import scala.collection.mutable
 
-def previousVersion = "0.7.0"
-
 def scala213 = "2.13.18"
 
 def scala212 = "2.12.21"
@@ -84,11 +82,11 @@ lazy val mimaEnable: List[Def.Setting[_]] = List(
       "munit.ScalaCheckSuite.unitToProp"
     )
   ),
-  mimaPreviousArtifacts := {
-    if (crossPaths.value)
-      Set("org.scalameta" %% moduleName.value % previousVersion)
-    else Set("org.scalameta" % moduleName.value % previousVersion)
-  }
+  // the last tag, so the baseline cannot go stale; CI has to fetch tags for it
+  mimaPreviousArtifacts := previousStableVersion.value.map { v =>
+    if (crossPaths.value) "org.scalameta" %% moduleName.value % v
+    else "org.scalameta" % moduleName.value % v
+  }.toSet
 )
 
 val sharedJVMSettings: List[Def.Setting[_]] = List(
