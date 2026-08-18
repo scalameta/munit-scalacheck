@@ -75,9 +75,15 @@ val isScala3Setting = Def.setting {
 def isScala3(v: Option[(Long, Long)]): Boolean = v.exists(_._1 == 3)
 
 // NOTE(olafur): disable Scala.js and Native settings for IntelliJ.
-lazy val skipIdeaSettings =
-  SettingKey[Boolean]("ide-skip-project").withRank(KeyRanks.Invisible) := true
-lazy val mimaEnable: List[Def.Setting[_]] = List(
+def onOtherPlatform(except: AutoPlugin*): Project => Project =
+  _.disablePlugins(MimaPlugin +: except: _*).settings(
+    SettingKey[Boolean]("ide-skip-project")
+      .withRank(KeyRanks.Invisible) := true
+  )
+val onJS: Project => Project = onOtherPlatform()
+val onNative: Project => Project = onOtherPlatform(ScalafixPlugin)
+
+def mimaEnable = Def.settings(
   mimaBinaryIssueFilters ++= List(
     ProblemFilters.exclude[DirectMissingMethodProblem](
       "munit.ScalaCheckSuite.unitToProp"
@@ -90,25 +96,8 @@ lazy val mimaEnable: List[Def.Setting[_]] = List(
   }.toSet
 )
 
-val sharedJVMSettings: List[Def.Setting[_]] = List(
-  crossScalaVersions := allScalaVersions
-) ++ mimaEnable
-
-val sharedJSSettings: List[Def.Setting[_]] = List(
-  skipIdeaSettings,
-  crossScalaVersions := allScalaVersions.filterNot(_.startsWith("0."))
-)
-val sharedJSConfigure: Project => Project =
-  _.disablePlugins(MimaPlugin)
-
-val sharedNativeSettings: List[Def.Setting[_]] = List(
-  skipIdeaSettings,
-  crossScalaVersions := allScalaVersions
-)
-val sharedNativeConfigure: Project => Project =
-  _.disablePlugins(ScalafixPlugin, MimaPlugin)
-
-val sharedSettings = List(
+val sharedSettings = Def.settings(
+  crossScalaVersions := allScalaVersions,
   scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((major, _)) if major != 2 =>
@@ -139,19 +128,28 @@ lazy val munitScalacheck = crossProject(JSPlatform, JVMPlatform, NativePlatform)
       "org.scalameta" %%% "munit" % munitVersion
     )
   )
-  .jvmSettings(
-    sharedJVMSettings
-  )
-  .nativeConfigure(sharedNativeConfigure)
-  .nativeSettings(
-    sharedNativeSettings
-  )
-  .jsConfigure(sharedJSConfigure)
-  .jsSettings(sharedJSSettings)
+  .jvmSettings(mimaEnable)
+  .nativeConfigure(onNative)
+  .jsConfigure(onJS)
 
 lazy val munitScalacheckJVM = munitScalacheck.jvm
 lazy val munitScalacheckJS = munitScalacheck.js
 lazy val munitScalacheckNative = munitScalacheck.native
+
+def testsJVMSettings = Def.settings(
+  fork := true,
+  Test / parallelExecution := true,
+  Test / testOptions += Tests.Argument(TestFrameworks.MUnit, "+b")
+)
+
+def jsEnvForJob(log: Logger) =
+  if (System.getenv("GITHUB_JOB") == "jsdom") {
+    log.info("Testing in JSDOMNodeJSEnv")
+    new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
+  } else {
+    log.info("Testing in NodeJSEnv")
+    new org.scalajs.jsenv.nodejs.NodeJSEnv
+  }
 
 lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform)
@@ -162,35 +160,17 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     buildInfoPackage := "munit",
     buildInfoKeys := Seq[BuildInfoKey](
       "sourceDirectory" ->
-        ((ThisBuild / baseDirectory).value / "tests" / "shared" / "src" / "main").getAbsolutePath.toString,
+        ((ThisBuild / baseDirectory).value / "tests" / "shared" / "src" / "main").getAbsolutePath,
       scalaVersion
     ),
     Test / unmanagedSourceDirectories ++=
       crossBuildingDirectories("tests", "test").value,
     publish / skip := true
   )
-  .nativeConfigure(sharedNativeConfigure)
-  .nativeSettings(sharedNativeSettings)
-  .jsConfigure(sharedJSConfigure)
-  .jsSettings(
-    sharedJSSettings,
-    jsEnv := {
-      val log = sLog.value
-      if (Option(System.getenv("GITHUB_JOB")).contains("jsdom")) {
-        log.info("Testing in JSDOMNodeJSEnv")
-        new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
-      } else {
-        log.info("Testing in NodeJSEnv")
-        new org.scalajs.jsenv.nodejs.NodeJSEnv
-      }
-    }
-  )
-  .jvmSettings(
-    sharedJVMSettings,
-    fork := true,
-    Test / parallelExecution := true,
-    Test / testOptions += Tests.Argument(TestFrameworks.MUnit, "+b")
-  )
+  .nativeConfigure(onNative)
+  .jsConfigure(onJS)
+  .jsSettings(jsEnv := jsEnvForJob(sLog.value))
+  .jvmSettings(testsJVMSettings)
   .disablePlugins(MimaPlugin)
 
 lazy val testsJVM = tests.jvm
