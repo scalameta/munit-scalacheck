@@ -61,13 +61,12 @@ addCommandAlias(
   "scalafixCheckAll",
   s"; ++$scala212 ;  scalafixEnable ; scalafix --check ; test:scalafix --check"
 )
-val isPreScala213 = Set[Option[(Long, Long)]](Some((2, 11)), Some((2, 12)))
+
 val scala2Versions = List(scala213, scala212)
 
 val scala3Versions = List(scala3)
 val allScalaVersions = scala2Versions ++ scala3Versions
 
-def isScala2(v: Option[(Long, Long)]): Boolean = v.exists(_._1 == 2)
 val isScala3Setting = Def.setting {
   isScala3(CrossVersion.partialVersion(scalaVersion.value))
 }
@@ -122,6 +121,7 @@ lazy val munitScalacheck = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .settings(
     moduleName := "munit-scalacheck",
     sharedSettings,
+    unmanagedMainSources("munit-scalacheck", "shared"),
     libraryDependencies ++= Seq(
       "org.scalacheck" %%% "scalacheck" % "1.19.0",
       "org.scalameta" %%% "munit-diff" % munitVersion,
@@ -163,8 +163,7 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
         ((ThisBuild / baseDirectory).value / "tests" / "shared" / "src" / "main").getAbsolutePath,
       scalaVersion
     ),
-    Test / unmanagedSourceDirectories ++=
-      crossBuildingDirectories("tests", "test").value,
+    unmanagedSources("tests", "shared"),
     publish / skip := true
   )
   .nativeConfigure(onNative)
@@ -180,17 +179,34 @@ lazy val testsNative = tests.native
 Global / excludeLintKeys ++= Set(
   mimaPreviousArtifacts
 )
-def crossBuildingDirectories(name: String, config: String) =
-  Def.setting[Seq[File]] {
-    val root = (ThisBuild / baseDirectory).value / name
-    val base = root / "shared" / "src" / config
-    val result = mutable.ListBuffer.empty[File]
-    val partialVersion = CrossVersion.partialVersion(scalaVersion.value)
-    if (isPreScala213(partialVersion)) {
-      result += base / "scala-pre-2.13"
-    }
-    if (isScala2(partialVersion)) {
-      result += base / "scala-2"
-    }
-    result.toList
+
+// crossProject's layout, wired by hand: a matrix has one base directory, so
+// each cell names the trees it shares. Absent directories are harmless.
+def roots(name: String, cfg: String, dirs: String*) = Def.setting[Seq[File]] {
+  val variants = new mutable.ListBuffer[String]()
+  variants += "scala"
+  variants += "java"
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, minor)) =>
+      variants += "scala-2"
+      if (minor < 13) variants += "scala-pre-2.13"
+    case Some((3, _)) => variants += "scala-3"
+    case _            =>
   }
+  val root = (ThisBuild / baseDirectory).value / name
+  for (dir <- dirs; base = root / dir / "src" / cfg; variant <- variants)
+    yield base / variant
+}
+
+def unmanagedMainSources(name: String, dirs: String*) = Def.settings(
+  Compile / unmanagedSourceDirectories ++= roots(name, "main", dirs: _*).value
+)
+
+def unmanagedTestSources(name: String, dirs: String*) = Def.settings(
+  Test / unmanagedSourceDirectories ++= roots(name, "test", dirs: _*).value
+)
+
+def unmanagedSources(name: String, dirs: String*) = Def.settings(
+  unmanagedMainSources(name, dirs: _*),
+  unmanagedTestSources(name, dirs: _*)
+)
