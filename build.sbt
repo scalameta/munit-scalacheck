@@ -49,9 +49,10 @@ inThisBuild(
   )
 )
 
-publish / skip := true
-mimaPreviousArtifacts := Set.empty
-crossScalaVersions := List()
+LocalRootProject / publish / skip := true
+LocalRootProject / mimaPreviousArtifacts := Set.empty
+LocalRootProject / crossScalaVersions := List()
+
 addCommandAlias(
   "scalafixAll",
   s"; ++$scala212 ; scalafixEnable ; all scalafix test:scalafix"
