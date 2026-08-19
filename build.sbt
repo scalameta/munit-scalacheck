@@ -104,6 +104,7 @@ def mimaEnable = Def.settings(
 )
 
 val sharedSettings = Def.settings(
+  scalacOptions += "-release:8", // built on a newer JDK than it targets
   scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((major, _)) if major != 2 =>
@@ -112,7 +113,6 @@ val sharedSettings = Def.settings(
         )
       case _ =>
         List(
-          "-target:jvm-1.8",
           "-Yrangepos",
           // -Xlint is unusable because of
           // https://github.com/scala/bug/issues/10448

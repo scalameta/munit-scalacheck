@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [11, 8]
+        java: [17, 25]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-java@v5.6.0
         with:
           distribution: temurin
-          java-version: 8
+          java-version: 17
           cache: sbt
       - uses: sbt/setup-sbt@v1
       - run: sbt testJS
@@ -38,7 +38,7 @@ jobs:
       - uses: actions/setup-java@v5.6.0
         with:
           distribution: temurin
-          java-version: 8
+          java-version: 17
           cache: sbt
       - uses: sbt/setup-sbt@v1
       - run: npm install
@@ -50,7 +50,7 @@ jobs:
       - uses: actions/setup-java@v5.6.0
         with:
           distribution: temurin
-          java-version: 8
+          java-version: 17
           cache: sbt
       - uses: sbt/setup-sbt@v1
       - run: sbt testNative
@@ -61,7 +61,7 @@ jobs:
       - uses: actions/setup-java@v5.6.0
         with:
           distribution: temurin
-          java-version: 8
+          java-version: 17
           cache: sbt
       - uses: sbt/setup-sbt@v1
       - run: sbt testJVM
@@ -76,7 +76,7 @@ jobs:
       - uses: actions/setup-java@v5.6.0
         with:
           distribution: temurin
-          java-version: 8
+          java-version: 17
           cache: sbt
       - uses: sbt/setup-sbt@v1
       - run: sbt mimaReportBinaryIssues
@@ -87,7 +87,7 @@ jobs:
       - uses: actions/setup-java@v5.6.0
         with:
           distribution: temurin
-          java-version: 8
+          java-version: 17
           cache: sbt
       - run: ./bin/scalafmt --check
   docs:
@@ -98,7 +98,7 @@ jobs:
       - uses: actions/setup-java@v5.6.0
         with:
           distribution: temurin
-          java-version: 11
+          java-version: 17
           cache: sbt
       - uses: sbt/setup-sbt@v1
       - run: sbt scalafixCheckAll
