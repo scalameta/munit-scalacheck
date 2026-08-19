@@ -1,5 +1,4 @@
 import com.typesafe.tools.mima.core._
-import sbtcrossproject.CrossPlugin.autoImport.crossProject
 import scala.collection.mutable
 
 def scala213 = "2.13.18"
@@ -54,15 +53,22 @@ LocalRootProject / mimaPreviousArtifacts := Set.empty
 LocalRootProject / crossScalaVersions := List()
 
 // scalafix runs on one Scala version, and Native opts out of the plugin
-def scalafixOn(arg: String) =
-  Seq(s"++$scala212", "scalafixEnable", s"scalafix $arg", s"test:scalafix $arg")
+def scalafixOn(arg: String) = {
+  val scalafixTargets =
+    Seq(munitScalacheck, tests).flatMap(m => Seq(m.jvm, m.js).map(_(scala212)))
+  val args = Seq(s"scalafix $arg", s"Test/scalafix $arg")
+  onEach(scalafixTargets, "scalafixEnable")(args: _*)
+}
+
+def onEach(ps: Seq[Project], preTasks: String*)(postTasks: String*) =
+  (preTasks ++ postTasks.flatMap { t => ps.map(p => s"${p.id}/$t") })
     .mkString("; ", "; ", "")
 
 addCommandAlias("scalafixAll", scalafixOn(""))
 addCommandAlias("scalafixCheckAll", scalafixOn("--check"))
-addCommandAlias("testJVM", "+tests/test")
-addCommandAlias("testJS", "+testsJS/test")
-addCommandAlias("testNative", "+testsNative/test")
+addCommandAlias("testJVM", onEach(tests.jvm.get)("test"))
+addCommandAlias("testJS", onEach(tests.js.get)("test"))
+addCommandAlias("testNative", onEach(tests.native.get)("test"))
 
 val scala2Versions = List(scala213, scala212)
 
@@ -98,7 +104,6 @@ def mimaEnable = Def.settings(
 )
 
 val sharedSettings = Def.settings(
-  crossScalaVersions := allScalaVersions,
   scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((major, _)) if major != 2 =>
@@ -119,8 +124,7 @@ val sharedSettings = Def.settings(
 
 val munitScalacheckName = "munit-scalacheck"
 
-lazy val munitScalacheck = crossProject(JSPlatform, JVMPlatform, NativePlatform)
-  .withoutSuffixFor(JVMPlatform)
+lazy val munitScalacheck = projectMatrix
   .in(file(munitScalacheckName))
   .settings(
     moduleName := munitScalacheckName,
@@ -132,9 +136,9 @@ lazy val munitScalacheck = crossProject(JSPlatform, JVMPlatform, NativePlatform)
       "org.scalameta" %%% "munit" % munitVersion
     )
   )
-  .jvmSettings(mimaEnable)
-  .nativeConfigure(onNative)
-  .jsConfigure(onJS)
+  .jvmPlatform(allScalaVersions, mimaEnable)
+  .jsPlatform(allScalaVersions, Nil, onJS)
+  .nativePlatform(allScalaVersions, Nil, onNative)
 
 def testsJVMSettings = Def.settings(
   fork := true,
@@ -151,25 +155,26 @@ def jsEnvForJob(log: Logger) =
     new org.scalajs.jsenv.nodejs.NodeJSEnv
   }
 
-lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
-  .withoutSuffixFor(JVMPlatform)
+val testsOnJS: Project => Project =
+  onJS.andThen(_.settings(jsEnv := jsEnvForJob(sLog.value)))
+
+lazy val tests = projectMatrix
   .dependsOn(munitScalacheck)
   .enablePlugins(BuildInfoPlugin)
   .settings(
     sharedSettings,
+    unmanagedSources("tests", "shared"),
     buildInfoPackage := "munit",
     buildInfoKeys := Seq[BuildInfoKey](
       "sourceDirectory" ->
         ((ThisBuild / baseDirectory).value / "tests" / "shared" / "src" / "main").getAbsolutePath,
       scalaVersion
     ),
-    unmanagedSources("tests", "shared"),
     publish / skip := true
   )
-  .nativeConfigure(onNative)
-  .jsConfigure(onJS)
-  .jsSettings(jsEnv := jsEnvForJob(sLog.value))
-  .jvmSettings(testsJVMSettings)
+  .jvmPlatform(allScalaVersions, testsJVMSettings)
+  .jsPlatform(allScalaVersions, Nil, testsOnJS)
+  .nativePlatform(allScalaVersions, Nil, onNative)
   .disablePlugins(MimaPlugin)
 
 Global / excludeLintKeys ++= Set(
