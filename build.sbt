@@ -66,9 +66,9 @@ def onEach(ps: Seq[Project], preTasks: String*)(postTasks: String*) =
 
 addCommandAlias("scalafixAll", scalafixOn(""))
 addCommandAlias("scalafixCheckAll", scalafixOn("--check"))
-addCommandAlias("testJVM", onEach(tests.jvm.get)("test"))
-addCommandAlias("testJS", onEach(tests.js.get)("test"))
-addCommandAlias("testNative", onEach(tests.native.get)("test"))
+addCommandAlias("testJVM", onEach(tests.jvm.get)("testFull"))
+addCommandAlias("testJS", onEach(tests.js.get)("testFull"))
+addCommandAlias("testNative", onEach(tests.native.get)("testFull"))
 
 val scala2Versions = List(scala213, scala212)
 
@@ -131,9 +131,9 @@ lazy val munitScalacheck = projectMatrix
     sharedSettings,
     unmanagedMainSources(munitScalacheckName, "shared"),
     libraryDependencies ++= Seq(
-      "org.scalacheck" %%% "scalacheck" % "1.19.0",
-      "org.scalameta" %%% "munit-diff" % munitVersion,
-      "org.scalameta" %%% "munit" % munitVersion
+      "org.scalacheck" %% "scalacheck" % "1.19.0",
+      "org.scalameta" %% "munit-diff" % munitVersion,
+      "org.scalameta" %% "munit" % munitVersion
     )
   )
   .jvmPlatform(allScalaVersions, mimaEnable)
@@ -156,7 +156,7 @@ def jsEnvForJob(log: Logger) =
   }
 
 val testsOnJS: Project => Project =
-  onJS.andThen(_.settings(jsEnv := jsEnvForJob(sLog.value)))
+  onJS.andThen(_.settings(jsEnv := Def.uncached(jsEnvForJob(sLog.value))))
 
 lazy val tests = projectMatrix
   .dependsOn(munitScalacheck)
