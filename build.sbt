@@ -131,7 +131,7 @@ lazy val munitScalacheck = projectMatrix
     sharedSettings,
     unmanagedMainSources(munitScalacheckName, "shared"),
     libraryDependencies ++= Seq(
-      "org.scalacheck" %% "scalacheck" % "1.19.0",
+      "org.scalacheck" %% "scalacheck" % "1.20.0",
       "org.scalameta" %% "munit-diff" % munitVersion,
       "org.scalameta" %% "munit" % munitVersion
     )
