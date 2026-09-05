@@ -1,7 +1,7 @@
 import com.typesafe.tools.mima.core._
 import scala.collection.mutable
 
-def scala213 = "2.13.18"
+def scala213 = "3.9.0"
 
 def scala212 = "2.12.21"
 
