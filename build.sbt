@@ -1,4 +1,5 @@
 import com.typesafe.tools.mima.core._
+import Extensions._
 import scala.collection.mutable
 
 def scala213 = "2.13.18"
@@ -136,9 +137,9 @@ lazy val munitScalacheck = projectMatrix
       "org.scalameta" %% "munit" % munitVersion
     )
   )
-  .jvmPlatform(allScalaVersions, mimaEnable)
-  .jsPlatform(allScalaVersions, Nil, onJS)
-  .nativePlatform(allScalaVersions, Nil, onNative)
+  .crossJvm(allScalaVersions, ss = mimaEnable)()
+  .crossJs(allScalaVersions)(onJS)
+  .crossNative(allScalaVersions)(onNative)
 
 def testsJVMSettings = Def.settings(
   fork := true,
@@ -172,9 +173,9 @@ lazy val tests = projectMatrix
     ),
     publish / skip := true
   )
-  .jvmPlatform(allScalaVersions, testsJVMSettings)
-  .jsPlatform(allScalaVersions, Nil, testsOnJS)
-  .nativePlatform(allScalaVersions, Nil, onNative)
+  .crossJvm(allScalaVersions, ss = testsJVMSettings)()
+  .crossJs(allScalaVersions)(testsOnJS)
+  .crossNative(allScalaVersions)(onNative)
   .disablePlugins(MimaPlugin)
 
 Global / excludeLintKeys ++= Set(
