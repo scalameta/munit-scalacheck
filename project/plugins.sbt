@@ -15,6 +15,6 @@ libraryDependencies += ("org.scala-js" %% "scalajs-env-jsdom-nodejs" % "1.1.1")
 
 addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.12")
 
-addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.6")
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.2.0")
 
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.13.1")
