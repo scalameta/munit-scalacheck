@@ -2,12 +2,6 @@ import com.typesafe.tools.mima.core._
 import Extensions._
 import scala.collection.mutable
 
-def scala213 = "2.13.18"
-
-def scala212 = "2.12.21"
-
-def scala3 = "3.3.8"
-
 def junitVersion = "4.13.2"
 
 def munitVersion = "1.3.6"
@@ -82,12 +76,8 @@ val isScala3Setting = Def.setting {
 
 def isScala3(v: Option[(Long, Long)]): Boolean = v.exists(_._1 == 3)
 
-// NOTE(olafur): disable Scala.js and Native settings for IntelliJ.
 def onOtherPlatform(except: AutoPlugin*): Project => Project =
-  _.disablePlugins(MimaPlugin +: except: _*).settings(
-    SettingKey[Boolean]("ide-skip-project")
-      .withRank(KeyRanks.Invisible) := true
-  )
+  _.disablePlugins(MimaPlugin +: except: _*)
 val onJS: Project => Project = onOtherPlatform()
 val onNative: Project => Project = onOtherPlatform(ScalafixPlugin)
 
