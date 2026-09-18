@@ -1,5 +1,9 @@
 # Contributing
 
+## Submitting a PR
+
+`./bin/scalafmt` formats the code, and CI runs it with `--check`.
+
 ## Importing the build into IntelliJ
 
 This codebase is primarily developed with VS Code but it's possible to work on
