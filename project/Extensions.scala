@@ -6,7 +6,7 @@ object Extensions {
 
   def scala212 = "2.12.21"
 
-  def scala3 = "3.3.8"
+  def scala3 = "3.3.9"
 
   /* `bspEnabled := false` leaves a row out of the BSP workspace, so an IDE
    * does not import it. IntelliJ can't load multiple versions, though, so
