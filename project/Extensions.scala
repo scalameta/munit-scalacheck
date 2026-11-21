@@ -2,7 +2,7 @@ import sbt.*
 import sbt.Keys.*
 
 object Extensions {
-  def scala213 = "2.13.18"
+  def scala213 = "3.10.0"
 
   def scala212 = "2.12.21"
 
