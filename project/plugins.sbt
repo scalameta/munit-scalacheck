@@ -13,7 +13,7 @@ libraryDependencies += ("org.scala-js" %% "scalajs-env-jsdom-nodejs" % "1.1.1")
   .exclude("org.scala-js", "scalajs-js-envs_2.13")
   .exclude("org.scala-js", "scalajs-logging_2.13")
 
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.12")
+addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.13")
 
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.2.1")
 
